@@ -17,7 +17,7 @@
 // Create display and DS1307 objects.  These are global variables that
 // can be accessed from both the setup and loop function below.
 Adafruit_7segment clockDisplay = Adafruit_7segment();
-RTC_DS1307 rtc = RTC_DS1307();
+RTC_DS1307 rtc;
 DHT dht(DHTPIN, DHTTYPE);
 
 // Keep track of the hours, minutes, seconds displayed by the clock.
@@ -37,7 +37,7 @@ void setup() {
   // and DS1307 clock.
 
   // Setup Serial port to print debug output.
-  Serial.begin(57600);
+  Serial.begin(9600);
   Serial.println("Clock starting!");
 
   // Setup the display.
@@ -45,23 +45,11 @@ void setup() {
 
   // Setup the DS1307 real-time clock.
   rtc.begin();
-  dht.begin();
-  
+  dht.begin();  
   Wire.begin();
-  // Set the DS1307 clock if it hasn't been set before.
-  bool setClockTime = !rtc.isrunning();
-  // Alternatively you can force the clock to be set again by
-  // uncommenting this line:
-  setClockTime = true;
-  if (setClockTime) {
-    Serial.println("Setting DS1307 time!");
-    // This line sets the DS1307 time to the exact date and time the
-    // sketch was compiled:
-    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-    // Alternatively you can set the RTC with an explicit date & time,
-    // for example to set January 21, 2014 at 3am you would uncomment:
-    //rtc.adjust(DateTime(2014, 1, 21, 3, 0, 0));
-  }
+
+  rtc.adjust(DateTime(F(__DATE__),F( __TIME__)));
+
 }
 
 void loop() {
@@ -70,26 +58,46 @@ void loop() {
   // Check if it's the top of the hour and get a new time reading
   // from the DS1307.  This helps keep the clock accurate by fixing
   // any drift.
-  if (minutes == 0) {
-    DateTime now = rtc.now();
-    hours = now.hour();
-    minutes = now.minute();
-  }
+
+  DateTime now = rtc.now();
+  hours = now.hour();
+  minutes = now.minute();
+
+  Serial.print("Date & Time: ");
+  Serial.print(now.year(), DEC);
+  Serial.print('/');
+  Serial.print(now.month(), DEC);
+  Serial.print('/');
+  Serial.println(now.day(), DEC);
+  Serial.print(now.hour(), DEC);
+  Serial.print(':');
+  Serial.print(now.minute(), DEC);
+  Serial.print(':');
+  Serial.println(now.second(), DEC);
+
 
   int t = dht.readTemperature();
   int h = dht.readHumidity();
-
+  
+  Serial.print("Temperature:");
+  Serial.print(t);
+  Serial.print("C");
+  Serial.println();
+  Serial.print("Humidity:");
+  Serial.print(h);
+  Serial.println(); 
+  
  
   double temp = (double)t;
   double higr = (double)h;
 
   clockDisplay.print(temp,2);
-  clockDisplay.writeDigitAscii(3,94); //94
+  clockDisplay.writeDigitRaw(3,99); //94
   clockDisplay.writeDigitAscii(4,67);
   
   clockDisplay.writeDisplay();
   delay(5000);
-  seconds += 5;
+  seconds += 4;
   clockDisplay.println();
 
 
@@ -144,7 +152,7 @@ void loop() {
   
   // Pause for a second for time to elapse.  This value is in milliseconds
   // so 1000 milliseconds = 1 second.
-  seconds += 3;
+  seconds += 2;
   delay(3000);
   // Now increase the seconds by one.
   seconds += 1;
@@ -167,7 +175,6 @@ void loop() {
       }
     }
   }
-  Serial.println(displayValue);
   Serial.println(seconds);
   // Loop code is finished, it will jump back to the start of the loop
   // function again!
