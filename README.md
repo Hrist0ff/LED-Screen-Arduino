@@ -1,6 +1,6 @@
 # LED Screen with Clock, Thermometer & Higrometer 
 
-![alt text](https://ibb.co/S7xqLMb)
+![Лого/Визия на проекта](https://i.imgur.com/hUldZ3l.png)
 
 *Проектът представлява LED display, който има опция за показване на часа, температурата и влажността във въздуха.*
 
